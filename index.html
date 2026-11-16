@@ -1,0 +1,3160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GiaiĐiệu 7 - Nghe nhạc đoán tên bài hát (THCS)</title>
+  <meta name="description" content="Trò chơi âm nhạc tương tác Nghe nhạc đoán tên bài hát với kho 100 bài hát dành cho học sinh lớp 7, tối ưu cho tivi và máy chiếu lớp học." />
+  <meta property="og:title" content="GiaiĐiệu 7 - Nghe nhạc đoán tên bài hát (THCS)" />
+  <meta property="og:description" content="Trò chơi âm nhạc tương tác Nghe nhạc đoán tên bài hát với kho 100 bài hát dành cho học sinh lớp 7, tối ưu cho tivi và máy chiếu lớp học." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-header: #13172b;
+      --bg-main: #232946;
+      --bg-surface: #1b2038;
+      --bg-modal: #171b30;
+      --ink-dark: #101324;
+      --ink-light: #ffffff;
+      --ink-muted: #c7cde6;
+      --accent-gold: #f5c065;
+      --accent-green: #22c55e;
+      --accent-green-bg: #dcfce7;
+      --accent-red: #ef4444;
+      --accent-pink: #ff6b8b;
+      --accent-blue: #38bdf8;
+      --accent-purple: #a855f7;
+      --font-display: 'Fredoka', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+      background-color: var(--bg-main);
+      color: var(--ink-light);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Subtle classroom quiz pattern background (stars, moons, puzzle pieces, music notes) */
+    .bg-pattern {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.085;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220' viewBox='0 0 220 220'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M36 22l4.2 8.6 9.5 1.4-6.9 6.7 1.6 9.4-8.4-4.5-8.5 4.5 1.7-9.4-6.9-6.7 9.5-1.4z'/%3E%3Cpath d='M168 38a14 14 0 1 1-14-14 11 11 0 0 0 14 14z'/%3E%3Cpath d='M92 78h14v-6a5 5 0 0 1 10 0v6h14v14h-6a5 5 0 0 0 0 10h6v14H92V78z'/%3E%3Cpath d='M36 164v-24l22-5v24'/%3E%3Ccircle cx='30' cy='166' r='6'/%3E%3Ccircle cx='52' cy='161' r='6'/%3E%3Cpath d='M176 154l3 6.2 6.8 1-4.9 4.8 1.2 6.8-6.1-3.2-6.1 3.2 1.2-6.8-4.9-4.8 6.8-1z'/%3E%3Ccircle cx='120' cy='24' r='4'/%3E%3Ccircle cx='116' cy='186' r='3.5'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 220px 220px;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+
+    /* ================= HEADER (TOP BAR) ================= */
+    .top-bar {
+      position: relative;
+      z-index: 20;
+      background-color: var(--bg-header);
+      border-bottom: 3px solid var(--ink-dark);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .brand-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.45rem;
+      letter-spacing: -0.01em;
+      line-height: 1;
+      user-select: none;
+      white-space: nowrap;
+      flex-shrink: 0;
+      color: #ffffff;
+    }
+
+    .brand-emblem {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #ff6b8b;
+      border: 2.5px solid var(--ink-dark);
+      box-shadow: 0 3px 0 var(--ink-dark);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+
+    .brand-grade {
+      color: var(--accent-gold);
+      margin-left: 2px;
+    }
+
+    .room-meta {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      min-width: 0;
+    }
+
+    .pin-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+
+    .pin-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+    }
+
+    .meta-sep {
+      color: rgba(255, 255, 255, 0.25);
+      user-select: none;
+    }
+
+    .topic-title {
+      color: #ffffff;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 340px;
+    }
+
+    .players-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #e2dff2;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    .slide-counter {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      padding: 6px 14px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .session-score-chip {
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .control-cluster {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      border: 2px solid var(--ink-dark);
+      background: #2f2b48;
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 var(--ink-dark);
+      transition: transform 140ms var(--ease-snappy), background-color 140ms ease;
+    }
+
+    .icon-btn:hover {
+      background: #3d385c;
+      transform: translateY(-1px);
+    }
+
+    .icon-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 var(--ink-dark);
+    }
+
+    .icon-btn.is-active {
+      background: var(--accent-gold);
+      color: var(--ink-dark);
+    }
+
+    .icon-btn.next-btn {
+      background: #4ade80;
+      color: var(--ink-dark);
+      width: auto;
+      padding: 0 14px;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    .icon-btn.next-btn:hover {
+      background: #6ee7b7;
+    }
+
+    /* ================= MAIN STAGE (2-COLUMN LAYOUT) ================= */
+    .stage-wrapper {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 20px 32px 12px;
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(0, 1.15fr);
+      gap: 36px;
+      align-items: center;
+      width: 100%;
+    }
+
+    /* Left Column: Question + 4 Pill Options + Score Progress Bar */
+    .question-col {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .question-heading-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .question-heading {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: clamp(2.1rem, 3.6vw, 3.15rem);
+      font-weight: 700;
+      line-height: 1.15;
+      color: #ffffff;
+      -webkit-text-stroke: 3px var(--ink-dark);
+      paint-order: stroke fill;
+      text-shadow:
+        0 4px 0 var(--ink-dark),
+        2px 2px 0 var(--ink-dark),
+        -2px -2px 0 var(--ink-dark);
+      letter-spacing: 0.01em;
+      animation: titlePop 380ms var(--ease-snappy) both;
+    }
+
+    @keyframes titlePop {
+      0% { opacity: 0; transform: translateY(10px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .answers-list {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .answer-pill {
+      position: relative;
+      width: 100%;
+      min-height: 62px;
+      padding: 12px 58px 12px 16px;
+      border-radius: 999px;
+      border: 3px solid var(--ink-dark);
+      background: #ffffff;
+      color: var(--ink-dark);
+      box-shadow: 0 5px 0 var(--ink-dark);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+      font-size: clamp(1rem, 1.35vw, 1.22rem);
+      font-weight: 700;
+      line-height: 1.3;
+      transition: transform 160ms var(--ease-snappy), background-color 180ms ease, opacity 220ms ease, box-shadow 160ms ease;
+    }
+
+    .answer-pill:hover:not(:disabled) {
+      transform: translateY(-2px);
+      background: #fef9ef;
+    }
+
+    .answer-pill:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--ink-dark);
+    }
+
+    .answer-pill:disabled {
+      cursor: default;
+    }
+
+    .answer-letter {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: #edeaf8;
+      border: 2.5px solid var(--ink-dark);
+      color: var(--ink-dark);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .answer-text {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .answer-status-icon {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%) scale(0.7);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 200ms ease, transform 220ms var(--ease-snappy);
+      pointer-events: none;
+    }
+
+    /* Selected state: #f5c065 (warm golden orange) */
+    .answer-pill.is-selected {
+      background: var(--accent-gold);
+      color: var(--ink-dark);
+    }
+
+    .answer-pill.is-selected .answer-letter {
+      background: #ffffff;
+    }
+
+    /* Correct reveal state */
+    .answer-pill.is-correct:not(.is-selected) {
+      background: var(--accent-green-bg);
+      color: #064e3b;
+    }
+
+    .answer-pill.is-correct .answer-status-icon {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+      background: var(--accent-green);
+      color: #ffffff;
+      border: 2.5px solid var(--ink-dark);
+    }
+
+    .answer-pill.is-selected-wrong .answer-status-icon {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+      background: var(--accent-red);
+      color: #ffffff;
+      border: 2.5px solid var(--ink-dark);
+    }
+
+    /* Dimmed wrong options */
+    .answer-pill.is-dimmed {
+      opacity: 0.42;
+      transform: scale(0.985);
+      box-shadow: 0 3px 0 var(--ink-dark);
+    }
+
+    /* Score / Timer Striped Bar */
+    .timer-block {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .timer-track {
+      position: relative;
+      height: 42px;
+      border-radius: 999px;
+      border: 3px solid var(--ink-dark);
+      background: #232036;
+      box-shadow: 0 4px 0 var(--ink-dark);
+      overflow: hidden;
+    }
+
+    .timer-fill {
+      position: absolute;
+      inset: 0;
+      transform-origin: left center;
+      transform: scaleX(1);
+      background-image: repeating-linear-gradient(
+        -45deg,
+        #ff5c7c 0px,
+        #ff5c7c 18px,
+        #ffbe3d 18px,
+        #ffbe3d 36px,
+        #4ade80 36px,
+        #4ade80 54px,
+        #38bdf8 54px,
+        #38bdf8 72px,
+        #a855f7 72px,
+        #a855f7 90px
+      );
+      background-size: 127px 127px;
+      animation: stripeScroll 2.2s linear infinite;
+      will-change: transform;
+    }
+
+    .timer-fill.is-paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes stripeScroll {
+      0% { background-position: 0 0; }
+      100% { background-position: 127px 0; }
+    }
+
+    .timer-score-readout {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #ffffff;
+      -webkit-text-stroke: 2px var(--ink-dark);
+      paint-order: stroke fill;
+      text-shadow: 0 2px 0 var(--ink-dark);
+      user-select: none;
+    }
+
+    .round-feedback {
+      min-height: 24px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 6px;
+    }
+
+    .round-feedback.is-win { color: #86efac; }
+    .round-feedback.is-lose { color: #fca5a5; }
+    .round-feedback.is-paused { color: var(--accent-gold); }
+
+    /* Right Column: 16:9 Video / Audio Player */
+    .media-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .media-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 22px;
+      border: 4px solid var(--ink-dark);
+      background: #141222;
+      box-shadow: 0 8px 0 var(--ink-dark);
+      overflow: hidden;
+    }
+
+    .yt-container, .yt-container iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* Audio-only (MP3) stage */
+    .mp3-stage {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: radial-gradient(circle at 50% 45%, #342f54 0%, #171426 100%);
+      padding: 24px;
+      text-align: center;
+    }
+
+    .mp3-stage.is-active {
+      display: flex;
+    }
+
+    .mp3-song-label {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: #ffffff;
+      max-width: 85%;
+    }
+
+    /* Blur / Cover overlay to hide MV & YouTube title while guessing */
+    .mystery-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px 24px 58px;
+      text-align: center;
+      background: rgba(24, 21, 39, 0.88);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      transition: opacity 280ms ease, visibility 280ms ease;
+    }
+
+    .mystery-overlay.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .vinyl-disc {
+      width: 96px;
+      height: 96px;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle, #f5c065 0 18%, #11101d 19% 22%, #292542 23% 100%);
+      border: 3px solid var(--ink-dark);
+      box-shadow: 0 6px 0 var(--ink-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spinSlow 5s linear infinite;
+    }
+
+    .vinyl-disc.is-paused {
+      animation-play-state: paused;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .eq-bars {
+      display: inline-flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 28px;
+    }
+
+    .eq-bar {
+      width: 6px;
+      border-radius: 999px;
+      background: var(--accent-gold);
+      animation: eqBounce 0.9s ease-in-out infinite alternate;
+    }
+
+    .eq-bar:nth-child(2) { background: #ff5c7c; animation-delay: 0.15s; }
+    .eq-bar:nth-child(3) { background: #4ade80; animation-delay: 0.3s; }
+    .eq-bar:nth-child(4) { background: #38bdf8; animation-delay: 0.45s; }
+    .eq-bar:nth-child(5) { background: #c084fc; animation-delay: 0.2s; }
+
+    .eq-bars.is-paused .eq-bar {
+      animation-play-state: paused;
+      height: 8px;
+    }
+
+    @keyframes eqBounce {
+      0% { height: 7px; }
+      100% { height: 28px; }
+    }
+
+    .mystery-title {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .mystery-subtitle {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+      max-width: 390px;
+      text-wrap: balance;
+    }
+
+    .play-trigger-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: 2.5px solid var(--ink-dark);
+      background: var(--accent-gold);
+      color: var(--ink-dark);
+      font-weight: 800;
+      font-size: 0.9rem;
+      box-shadow: 0 3px 0 var(--ink-dark);
+      transition: transform 140ms ease;
+    }
+
+    .play-trigger-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* YouTube fallback banner if embed errors out */
+    .yt-fallback-box {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      text-align: center;
+      background: #1a172b;
+      color: #e2dff2;
+    }
+
+    .yt-fallback-box.is-visible {
+      display: flex;
+    }
+
+    /* Overlay buttons inside media frame */
+    .media-controls-overlay {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      bottom: 14px;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .media-controls-overlay button {
+      pointer-events: auto;
+    }
+
+    .media-left-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .media-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 2.5px solid var(--ink-dark);
+      background: rgba(28, 25, 43, 0.92);
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 3px 0 var(--ink-dark);
+      white-space: nowrap;
+      transition: background-color 140ms ease, transform 140ms ease;
+    }
+
+    .media-pill-btn:hover {
+      background: #353052;
+      transform: translateY(-1px);
+    }
+
+    .media-pill-btn.is-blur-on {
+      background: #6d28d9;
+      color: #ffffff;
+    }
+
+    .mute-circle-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 999px;
+      border: 2.5px solid var(--ink-dark);
+      background: rgba(28, 25, 43, 0.94);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 0 var(--ink-dark);
+      flex-shrink: 0;
+      transition: background-color 140ms ease, transform 140ms ease;
+    }
+
+    .mute-circle-btn:hover {
+      background: #353052;
+      transform: translateY(-1px);
+    }
+
+    .mute-circle-btn.is-muted {
+      background: var(--accent-red);
+      color: #ffffff;
+    }
+
+    /* ================= FOOTER (HOST AVATAR BADGE) ================= */
+    .bottom-host-bar {
+      position: relative;
+      z-index: 15;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px 14px;
+      flex-shrink: 0;
+    }
+
+    .host-badge {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: transparent;
+      border: 0;
+      color: #ffffff;
+      padding: 0;
+    }
+
+    .host-avatar-ring {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border: 3px solid var(--ink-dark);
+      background: var(--accent-gold);
+      box-shadow: 0 4px 0 var(--ink-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: transform 180ms var(--ease-snappy);
+    }
+
+    .host-badge:hover .host-avatar-ring {
+      transform: translateY(-2px) scale(1.04);
+    }
+
+    .host-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #e2dff2;
+      background: var(--bg-header);
+      border: 2px solid var(--ink-dark);
+      padding: 1px 10px;
+      border-radius: 999px;
+      margin-top: -12px;
+    }
+
+    /* ================= MODALS (SETTINGS & RESULTS) ================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(14, 12, 24, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      background: var(--bg-modal);
+      border: 3px solid var(--ink-dark);
+      border-radius: 22px;
+      box-shadow: 0 12px 0 var(--ink-dark);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      color: #ffffff;
+    }
+
+    .modal-card.results-card {
+      max-width: 540px;
+      text-align: center;
+    }
+
+    .modal-header {
+      background: var(--bg-header);
+      border-bottom: 2.5px solid var(--ink-dark);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .modal-close-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 2px solid var(--ink-dark);
+      background: #353052;
+      color: #ffffff;
+      font-size: 1.2rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close-btn:hover {
+      background: #ef4444;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .panel-section {
+      background: #2b2742;
+      border: 2px solid var(--ink-dark);
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-section-title {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+    }
+
+    .form-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--ink-muted);
+    }
+
+    .field input, .field select {
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 2px solid var(--ink-dark);
+      background: #171526;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .url-hint {
+      font-size: 0.78rem;
+      color: #93c5fd;
+      min-height: 16px;
+    }
+
+    .options-editor-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .option-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1c192d;
+      border: 2px solid var(--ink-dark);
+      border-radius: 12px;
+      padding: 6px 10px;
+    }
+
+    .option-input-row input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-green);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .option-input-row input[type="text"] {
+      flex: 1;
+      height: 34px;
+      border: 0;
+      background: transparent;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      min-width: 0;
+    }
+
+    .option-input-row input[type="text"]:focus {
+      outline: none;
+    }
+
+    .option-badge {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 11px;
+      border: 2px solid var(--ink-dark);
+      font-weight: 800;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      box-shadow: 0 3px 0 var(--ink-dark);
+      white-space: nowrap;
+      transition: transform 130ms ease, filter 130ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 0 var(--ink-dark);
+    }
+
+    .btn-primary { background: var(--accent-gold); color: var(--ink-dark); }
+    .btn-green { background: #4ade80; color: var(--ink-dark); }
+    .btn-purple { background: #a855f7; color: #ffffff; }
+    .btn-secondary { background: #3f3a60; color: #ffffff; }
+    .btn-danger { background: #ef4444; color: #ffffff; }
+    .btn-sm { height: 32px; padding: 0 10px; font-size: 0.78rem; border-radius: 8px; }
+
+    .form-error {
+      color: #fca5a5;
+      font-size: 0.85rem;
+      font-weight: 700;
+      min-height: 18px;
+    }
+
+    /* Song list inside settings */
+    .song-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .song-item {
+      background: #1c192d;
+      border: 2px solid var(--ink-dark);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .song-item.is-current {
+      border-color: var(--accent-gold);
+    }
+
+    .song-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .song-item-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .song-idx {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #353052;
+      color: var(--accent-gold);
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .song-name {
+      font-weight: 800;
+      font-size: 0.96rem;
+      color: #ffffff;
+    }
+
+    .song-meta-text {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+    }
+
+    .song-options-preview {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .opt-chip {
+      font-size: 0.78rem;
+      padding: 5px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #d6d2ea;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .opt-chip.is-right {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      font-weight: 700;
+    }
+
+    /* Results modal stats */
+    .results-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat-tile {
+      background: #2b2742;
+      border: 2px solid var(--ink-dark);
+      border-radius: 14px;
+      padding: 14px 10px;
+    }
+
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--ink-muted);
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* Toast feedback */
+    .toast {
+      position: fixed;
+      bottom: 84px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--bg-header);
+      color: #ffffff;
+      border: 2px solid var(--ink-dark);
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      box-shadow: 0 5px 0 var(--ink-dark);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 150;
+      transition: opacity 200ms ease, transform 200ms var(--ease-snappy);
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .quiz-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .stage-wrapper {
+        padding: 16px 18px;
+      }
+      .top-bar {
+        padding: 10px 16px;
+      }
+      .form-grid-4, .song-options-preview {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .room-meta .topic-title, .room-meta .meta-sep {
+        display: none;
+      }
+      .options-editor-grid, .form-grid-2, .form-grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .results-stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body data-state="playing">
+  <div class="bg-pattern" aria-hidden="true"></div>
+
+  <!-- TOP HEADER BAR -->
+  <header class="top-bar">
+    <div class="header-left">
+      <div class="brand-logo" aria-label="GiaiĐiệu 7">
+        <span class="brand-emblem" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+        </span>
+        <span>GiaiĐiệu<span class="brand-grade"> 7</span></span>
+      </div>
+
+      <div class="room-meta">
+        <button type="button" class="pin-btn" id="pin-copy-btn" aria-label="Sao chép mã lớp học">
+          <span id="header-pin-text">Lớp 7A · 828 804</span>
+        </button>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span class="topic-title" id="header-topic-text">Nghe nhạc đoán tên bài hát</span>
+        <span class="meta-sep" aria-hidden="true">·</span>
+        <span class="players-stat" aria-label="Số người chơi trong lớp">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          <span id="header-players-count">32</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <span class="session-score-chip" id="header-total-score">0 điểm</span>
+      <span class="slide-counter" id="header-slide-counter">Câu 1/100</span>
+
+      <div class="control-cluster">
+        <button type="button" class="icon-btn" id="pause-btn" aria-label="Tạm dừng" title="Tạm dừng / Tiếp tục (Phím P)">
+          <svg id="pause-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <rect x="6" y="4" width="4" height="16" rx="1.5"/>
+            <rect x="14" y="4" width="4" height="16" rx="1.5"/>
+          </svg>
+        </button>
+
+        <button type="button" class="icon-btn next-btn" id="next-btn" aria-label="Qua bài tiếp theo" title="Qua bài tiếp theo (Phím mũi tên phải)">
+          <span>Tiếp theo</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14"/>
+            <path d="m12 5 7 7-7 7"/>
+          </svg>
+        </button>
+
+        <button type="button" class="icon-btn" id="settings-btn" aria-label="Cài đặt và quản lý câu hỏi" title="Cài đặt / Soạn câu hỏi">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+
+        <button type="button" class="icon-btn" id="fullscreen-btn" aria-label="Toàn màn hình" title="Toàn màn hình">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN 2-COLUMN GAME AREA -->
+  <main class="stage-wrapper">
+    <div class="quiz-grid">
+      <!-- LEFT COLUMN: Question + 4 Pill Buttons + Score Bar -->
+      <section class="question-col" aria-label="Khu vực câu hỏi và đáp án">
+        <div class="question-heading-wrap">
+          <h1 class="question-heading" id="question-heading">Đây là bài gì</h1>
+        </div>
+
+        <div class="answers-list" id="answers-list" role="group" aria-label="Các lựa chọn đáp án">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="timer-block">
+          <div class="timer-track" role="progressbar" aria-label="Thanh điểm và thời gian còn lại" aria-valuemin="0" aria-valuemax="1000" aria-valuenow="1000" id="timer-track">
+            <div class="timer-fill" id="timer-fill"></div>
+            <div class="timer-score-readout" id="timer-score-readout">1000</div>
+          </div>
+          <div class="round-feedback" id="round-feedback">
+            <span id="feedback-msg">Lắng nghe giai điệu và chọn tên bài hát đúng!</span>
+            <span id="round-category-label">Âm nhạc Lớp 7</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: 16:9 Video / Music Player -->
+      <section class="media-col" aria-label="Trình phát nhạc và video">
+        <div class="media-frame" id="media-frame">
+          <div class="yt-container" id="yt-player-mount"></div>
+
+          <div class="mp3-stage" id="mp3-stage">
+            <div class="vinyl-disc" id="mp3-vinyl">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#11101d" aria-hidden="true">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+            </div>
+            <div class="eq-bars" id="mp3-eq">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <div class="mp3-song-label" id="mp3-revealed-title">Trình phát Audio MP3</div>
+            <audio id="html5-audio" preload="auto"></audio>
+          </div>
+
+          <div class="yt-fallback-box" id="yt-fallback-box">
+            <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="#f5c065" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="m15 9-6 6"/>
+              <path d="m9 9 6 6"/>
+            </svg>
+            <div style="font-weight:700;font-size:1rem;">Không thể nhúng video YouTube này trên trình duyệt</div>
+            <div style="font-size:0.84rem;color:#c7c3dc;max-width:340px;" id="yt-fallback-desc">Video có thể bị tắt chế độ nhúng hoặc đang mất kết nối mạng.</div>
+          </div>
+
+          <!-- Mystery Blur Overlay -->
+          <div class="mystery-overlay" id="mystery-overlay">
+            <div class="vinyl-disc" id="mystery-vinyl">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="#11101d" aria-hidden="true">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+            </div>
+            <div class="eq-bars" id="mystery-eq">
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+              <span class="eq-bar"></span>
+            </div>
+            <p class="mystery-title" id="mystery-status-title">Đang che hình bài hát</p>
+            <p class="mystery-subtitle" id="mystery-status-sub">Hình ảnh MV sẽ tự động mở sau khi cả lớp chốt đáp án.</p>
+            <button type="button" class="play-trigger-btn" id="play-media-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="6 4 20 12 6 20 6 4"/>
+              </svg>
+              <span id="play-media-label">Phát nhạc lại từ đầu đoạn</span>
+            </button>
+          </div>
+
+          <!-- Player Controls Overlay -->
+          <div class="media-controls-overlay">
+            <div class="media-left-controls">
+              <button type="button" class="media-pill-btn is-blur-on" id="toggle-blur-btn" aria-pressed="true" aria-label="Bật hoặc tắt chế độ làm mờ video khi đang đoán">
+                <svg id="blur-eye-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>
+                  <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>
+                  <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>
+                  <line x1="2" x2="22" y1="2" y2="22"/>
+                </svg>
+                <span id="toggle-blur-text">Che video khi đoán: BẬT</span>
+              </button>
+            </div>
+
+            <button type="button" class="mute-circle-btn" id="mute-btn" aria-label="Tắt tiếng trình phát nhạc" aria-pressed="false" title="Bật / Tắt tiếng (Phím M)">
+              <svg id="mute-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- BOTTOM CENTER HOST AVATAR BADGE -->
+  <footer class="bottom-host-bar">
+    <button type="button" class="host-badge" id="host-badge-btn" aria-label="Mở bảng điều khiển người dẫn trò chơi">
+      <div class="host-avatar-ring">
+        <svg width="46" height="46" viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="#ffe4b5"/>
+          <path d="M16 58c1.5-10 8-15 16-15s14.5 5 16 15" fill="#4f46e5"/>
+          <path d="M26 44l6 6 6-6" fill="#ffffff"/>
+          <circle cx="32" cy="27" r="11" fill="#fdd5b1"/>
+          <path d="M20 25c0-8 5.5-14 12-14s12 6 12 14c-2-3-5-4-12-4s-10 1-12 4z" fill="#1e1b4b"/>
+          <circle cx="28" cy="27" r="1.8" fill="#1e1b4b"/>
+          <circle cx="36" cy="27" r="1.8" fill="#1e1b4b"/>
+          <path d="M28.5 32c2 2 5 2 7 0" stroke="#1e1b4b" stroke-width="2" stroke-linecap="round"/>
+          <!-- Headphones -->
+          <path d="M19 28v-2a13 13 0 0 1 26 0v2" stroke="#ff5c7c" stroke-width="3.5" stroke-linecap="round"/>
+          <rect x="16" y="24" width="5" height="9" rx="2.5" fill="#ff5c7c"/>
+          <rect x="43" y="24" width="5" height="9" rx="2.5" fill="#ff5c7c"/>
+        </svg>
+      </div>
+      <span class="host-label">Host · Giáo viên</span>
+    </button>
+  </footer>
+
+  <!-- SETTINGS & SONG MANAGER MODAL -->
+  <div class="modal-backdrop" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="settings-modal-title">Cài đặt trò chơi &amp; Quản lý bài hát</h2>
+        <button type="button" class="modal-close-btn" id="close-settings-btn" aria-label="Đóng cửa sổ cài đặt">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Section 1: Room Config -->
+        <section class="panel-section">
+          <h3 class="panel-section-title">1. Thông tin phòng học &amp; Thời gian</h3>
+          <div class="form-grid-4" style="grid-template-columns: minmax(220px, 1.8fr) repeat(3, minmax(0, 1fr));">
+            <div class="field">
+              <label for="cfg-topic">Tên chủ đề</label>
+              <input type="text" id="cfg-topic" value="Nghe nhạc đoán tên bài hát" />
+            </div>
+            <div class="field">
+              <label for="cfg-pin">Tên lớp / Mã phòng</label>
+              <input type="text" id="cfg-pin" value="Lớp 7A · 828 804" maxlength="20" />
+            </div>
+            <div class="field">
+              <label for="cfg-players">Số học sinh tham gia</label>
+              <input type="number" id="cfg-players" min="1" max="200" value="32" />
+            </div>
+            <div class="field">
+              <label for="cfg-duration">Thời gian mỗi bài (giây)</label>
+              <input type="number" id="cfg-duration" min="10" max="90" value="25" />
+            </div>
+          </div>
+          <div class="btn-row">
+            <label style="display:inline-flex;align-items:center;gap:8px;font-size:0.88rem;font-weight:700;cursor:pointer;">
+              <input type="checkbox" id="cfg-sfx" checked style="width:18px;height:18px;accent-color:#4ade80;" />
+              <span>Bật hiệu ứng âm thanh (Đúng / Sai / Hết giờ)</span>
+            </label>
+            <button type="button" class="btn btn-primary btn-sm" id="save-room-cfg-btn">Lưu thông tin lớp</button>
+          </div>
+        </section>
+
+        <!-- Section 2: Quick Add / Edit Song -->
+        <section class="panel-section">
+          <h3 class="panel-section-title" id="song-form-heading">2. Thêm bài hát nhanh &amp; Tự động tạo đáp án</h3>
+          <input type="hidden" id="editing-song-id" value="" />
+          <div class="form-grid-4">
+            <div class="field" style="grid-column: span 2;">
+              <label for="song-title-input">Tên bài hát đúng *</label>
+              <input type="text" id="song-title-input" placeholder="Ví dụ: Mái trường mến yêu" />
+            </div>
+            <div class="field">
+              <label for="song-category-select">Chủ đề / Thể loại</label>
+              <select id="song-category-select">
+                <option value="hocduong">Học đường / Thiếu nhi</option>
+                <option value="vpop">V-Pop / Nhạc trẻ tích cực</option>
+                <option value="quehuong">Quê hương / Tuổi trẻ</option>
+                <option value="quocte">Nhạc quốc tế / Phim</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="song-start-input">Giây bắt đầu (startSeconds)</label>
+              <input type="number" id="song-start-input" min="0" max="600" value="0" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="song-url-input">Link YouTube hoặc Link MP3 *</label>
+            <input type="text" id="song-url-input" placeholder="Dán link youtube.com/watch?v=..., youtu.be/..., ID video hoặc link .mp3" />
+            <div class="url-hint" id="url-parse-hint">Hỗ trợ tự động nhận diện YouTube ID và file nhạc MP3/OGG/WAV.</div>
+          </div>
+
+          <div class="btn-row">
+            <span style="font-size:0.84rem;font-weight:700;color:#e2dff2;">4 lựa chọn hiển thị (chọn nút tròn để đánh dấu đáp án đúng):</span>
+            <button type="button" class="btn btn-purple btn-sm" id="auto-distractors-btn">
+              Tự động tạo 3 đáp án nhiễu
+            </button>
+          </div>
+
+          <div class="options-editor-grid">
+            <div class="option-input-row">
+              <input type="radio" name="correct-opt-radio" value="0" id="opt-radio-0" checked aria-label="Đánh dấu đáp án A là đúng" />
+              <span class="option-badge">A</span>
+              <input type="text" id="opt-input-0" placeholder="Đáp án A" aria-label="Nội dung đáp án A" />
+            </div>
+            <div class="option-input-row">
+              <input type="radio" name="correct-opt-radio" value="1" id="opt-radio-1" aria-label="Đánh dấu đáp án B là đúng" />
+              <span class="option-badge">B</span>
+              <input type="text" id="opt-input-1" placeholder="Đáp án B" aria-label="Nội dung đáp án B" />
+            </div>
+            <div class="option-input-row">
+              <input type="radio" name="correct-opt-radio" value="2" id="opt-radio-2" aria-label="Đánh dấu đáp án C là đúng" />
+              <span class="option-badge">C</span>
+              <input type="text" id="opt-input-2" placeholder="Đáp án C" aria-label="Nội dung đáp án C" />
+            </div>
+            <div class="option-input-row">
+              <input type="radio" name="correct-opt-radio" value="3" id="opt-radio-3" aria-label="Đánh dấu đáp án D là đúng" />
+              <span class="option-badge">D</span>
+              <input type="text" id="opt-input-3" placeholder="Đáp án D" aria-label="Nội dung đáp án D" />
+            </div>
+          </div>
+
+          <div class="form-error" id="song-form-error" role="alert"></div>
+
+          <div class="btn-row">
+            <div class="btn-group">
+              <button type="button" class="btn btn-green" id="submit-song-btn">Thêm bài hát</button>
+              <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display:none;">Hủy sửa</button>
+            </div>
+            <span style="font-size:0.78rem;color:var(--ink-muted);">Nếu để trống A/B/C/D khi bấm Thêm, hệ thống sẽ tự sinh 3 đáp án nhiễu.</span>
+          </div>
+        </section>
+
+        <!-- Section 3: Playlist & Auto-Random Grade 7 Mode -->
+        <section class="panel-section">
+          <div class="btn-row">
+            <h3 class="panel-section-title" id="playlist-count-heading">3. Danh sách bài hát hiện tại (100 bài)</h3>
+            <div class="btn-group">
+              <select id="random-count-select" aria-label="Số bài hát khi chơi ngẫu nhiên" style="height:36px;padding:0 10px;border-radius:9px;border:2px solid #11101d;background:#171526;color:#fff;font-weight:700;">
+                <option value="10">10 bài ngẫu nhiên</option>
+                <option value="15" selected>15 bài ngẫu nhiên</option>
+                <option value="20">20 bài ngẫu nhiên</option>
+                <option value="30">30 bài ngẫu nhiên</option>
+                <option value="50">50 bài ngẫu nhiên</option>
+                <option value="100">Cả 100 bài ngẫu nhiên</option>
+              </select>
+              <button type="button" class="btn btn-primary btn-sm" id="play-random-btn">Chơi ngẫu nhiên (Kho 100 bài Lớp 7)</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="restore-defaults-btn">Khôi phục đủ 100 bài</button>
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="field">
+              <label for="song-search-input">Tìm nhanh trong danh sách</label>
+              <input type="text" id="song-search-input" placeholder="Nhập tên bài hát cần tìm..." />
+            </div>
+            <div class="field">
+              <label for="song-filter-select">Lọc theo chủ đề</label>
+              <select id="song-filter-select">
+                <option value="all">Tất cả chủ đề</option>
+                <option value="hocduong">Học đường / Thiếu nhi</option>
+                <option value="quehuong">Quê hương / Tuổi trẻ</option>
+                <option value="vpop">V-Pop / Nhạc trẻ tích cực</option>
+                <option value="quocte">Nhạc quốc tế / Phim</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="song-list" id="settings-song-list">
+            <!-- Populated dynamically -->
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- END OF QUIZ RESULTS MODAL -->
+  <div class="modal-backdrop" id="results-modal" role="dialog" aria-modal="true" aria-labelledby="results-modal-title">
+    <div class="modal-card results-card">
+      <div class="modal-header">
+        <h2 class="modal-title" id="results-modal-title">Hoàn thành vòng chơi!</h2>
+        <button type="button" class="modal-close-btn" id="close-results-btn" aria-label="Đóng bảng tổng kết">✕</button>
+      </div>
+      <div class="modal-body" style="align-items:center;">
+        <div class="results-stats-grid" style="width:100%;">
+          <div class="stat-tile">
+            <div class="stat-value" id="res-total-score">0</div>
+            <div class="stat-label">Tổng điểm</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value" id="res-correct-count">0/15</div>
+            <div class="stat-label">Bài đoán đúng</div>
+          </div>
+          <div class="stat-tile">
+            <div class="stat-value" id="res-accuracy">0%</div>
+            <div class="stat-label">Độ chính xác</div>
+          </div>
+        </div>
+        <div class="btn-group" style="justify-content:center;margin-top:6px;">
+          <button type="button" class="btn btn-green" id="replay-quiz-btn">Chơi lại từ đầu</button>
+          <button type="button" class="btn btn-primary" id="results-random-btn">Chơi ngẫu nhiên mới</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var STORAGE_KEY = 'giaidieu7_music_v2';
+      var SETTINGS_KEY = 'giaidieu7_settings_v2';
+
+      // =========================================================================
+      // 1. BUILT-IN GRADE 7 MUSIC BANK (100 CURATED SONGS + DISTRACTOR POOL)
+      // =========================================================================
+      var RAW_SONG_BANK = [
+        ['Mái trường mến yêu', '_r5a30oh0DY', 18, 'hocduong'],
+        ['Bụi phấn', 'rRA7q6_6cME', 15, 'hocduong'],
+        ['Đi học', 'BChTZH_Nqks', 12, 'hocduong'],
+        ['Nhớ ơn thầy cô', 'Z8V7uRJR5S0', 20, 'hocduong'],
+        ['Nụ cười', 'S5JJXZIvWjw', 14, 'hocduong'],
+        ['Tiếng ve gọi hè', 'k6NNlVzSaLo', 14, 'hocduong'],
+        ['Em là bông hồng nhỏ', 'WEi3PYyeRso', 15, 'hocduong'],
+        ['Gia đình nhỏ, hạnh phúc to', 'h1IGAB0ultE', 16, 'hocduong'],
+        ['Em yêu trường em', 'SdzBsOFOBrc', 12, 'hocduong'],
+        ['Bài ca đi học', 'vGY7tawVDco', 14, 'hocduong'],
+        ['Người thầy', 'ivJ4-oI9kno', 35, 'hocduong'],
+        ['Phượng hồng', 'awVIygiuj3E', 25, 'hocduong'],
+        ['Mong ước kỷ niệm xưa', 'S_CHQol_DQw', 30, 'hocduong'],
+        ['Cho con', 'BvpH57G3LrI', 20, 'hocduong'],
+        ['Nhật ký của mẹ', '3Waf1Gy9d90', 45, 'hocduong'],
+        ['Ngày đầu tiên đi học', '8NfpAtUDfao', 18, 'hocduong'],
+        ['Bông hồng tặng cô', 'n3voQvUgoD4', 15, 'hocduong'],
+        ['Cánh én tuổi thơ', 'Jbilftgeabw', 15, 'hocduong'],
+        ['Hành khúc tới trường', 'Nj-FfVoCoyY', 15, 'hocduong'],
+        ['Đưa cơm cho mẹ đi cày', 'U5k9xSuxkr0', 14, 'hocduong'],
+        ['Mùa hoa phượng nở', 'VGzYLGRl32U', 15, 'hocduong'],
+        ['Khăn quàng thắm mãi vai em', 'L6KVV1YxilY', 16, 'hocduong'],
+        ['Tiến lên đoàn viên', 'wXAnMGTbHr4', 15, 'hocduong'],
+        ['Đội ca (Cùng nhau ta đi lên)', '7nmZX-Xfvtg', 14, 'hocduong'],
+        ['Một vòng Việt Nam', 'INQ20VdF9uQ', 45, 'quehuong'],
+        ['Khát vọng tuổi trẻ', '8gvtAeGTNZQ', 25, 'quehuong'],
+        ['Việt Nam ơi', 'DChP6bX8fSs', 35, 'quehuong'],
+        ['Mùa hè xanh', 'RpQD-FEcj-E', 20, 'quehuong'],
+        ['Hào khí Việt Nam', 'HK_3yHDzI0o', 30, 'quehuong'],
+        ['Thương ca tiếng Việt', 'S1aD9Bn5L0U', 35, 'quehuong'],
+        ['Hành trình trên đất phù sa', '35TSAMLvzJQ', 28, 'quehuong'],
+        ['Xinh tươi Việt Nam', 'JibubW6LP5Q', 32, 'quehuong'],
+        ['Nối vòng tay lớn', 'gMMI0hLDjtE', 22, 'quehuong'],
+        ['Lên đàng', 'iWQV1atpkag', 15, 'quehuong'],
+        ['Việt Nam quê hương tôi', '0mCMQ9ilQok', 25, 'quehuong'],
+        ['Tự nguyện', 'HVXJ2fe29TQ', 25, 'quehuong'],
+        ['Bác Hồ người cho em tất cả', 'WI5NY1Z2JJ0', 16, 'quehuong'],
+        ['Như có Bác trong ngày đại thắng', 'HFSCN9RadB8', 15, 'quehuong'],
+        ['Gặp nhau giữa rừng mơ', 'wUTQo_iW79o', 20, 'quehuong'],
+        ['Chiếc đèn ông sao', 'lNHGsFhmraI', 12, 'quehuong'],
+        ['Rước đèn tháng Tám', 'dzKvSFfA1h0', 14, 'quehuong'],
+        ['Em đi giữa biển vàng', '3jfL0_7KaGY', 15, 'quehuong'],
+        ['Hạt gạo làng ta', 'CNLCZM0bJkg', 15, 'quehuong'],
+        ['Quê hương tuổi thơ tôi', 'qSE8H8e16dw', 25, 'quehuong'],
+        ['Việt Nam trong tôi là', '82s0WD9zlPU', 40, 'quehuong'],
+        ['Dòng máu Lạc Hồng', '1W5agiFpz1I', 30, 'quehuong'],
+        ['Ngọn lửa tuổi hai mươi', 'Lbz_WjQkLCg', 25, 'quehuong'],
+        ['Bài ca người giáo viên nhân dân', 'LqjUFMHBe0Q', 20, 'quehuong'],
+        ['Nấu ăn cho em', 'ukHK1GVyr0I', 32, 'vpop'],
+        ['Để Mị nói cho mà nghe', 'JAhdeizXpaQ', 40, 'vpop'],
+        ['Bống bống bang bang', 'BwN3NiZt-PU', 30, 'vpop'],
+        ['Sống như những đóa hoa', 'KwGTNrhbu5k', 28, 'vpop'],
+        ['Lớn rồi còn khóc nhè', 'pFSQh_5QE40', 42, 'vpop'],
+        ['Đi giữa trời rực rỡ', 'pjm2aXT3A2M', 30, 'vpop'],
+        ['Tình bạn diệu kỳ', '1Zk_5OouICE', 25, 'vpop'],
+        ['Ước mơ của mẹ', 'zUfzigdb4d0', 40, 'vpop'],
+        ['Thật bất ngờ', 'YUAmi7Q2F0Y', 35, 'vpop'],
+        ['Mang tiền về cho mẹ', 'UVbv-PJXm14', 38, 'vpop'],
+        ['Thằng điên', 'HXkh7EOqcQ4', 35, 'vpop'],
+        ['Nếu chỉ còn một ngày để sống', '9zqK7Y73xSs', 30, 'vpop'],
+        ['Đường đến ngày vinh quang', 'tJ2measnTc0', 35, 'vpop'],
+        ['Mắt biếc (Có chàng trai viết lên cây)', '0VC6euBtKkk', 35, 'vpop'],
+        ['Alone', '1-xGerv5FOk', 32, 'quocte'],
+        ['Counting Stars', 'hT_nvWreIhg', 35, 'quocte'],
+        ['Believer', 'W0DM5lcj6mw', 30, 'quocte'],
+        ['Shape of You', 'JGwWNGJdvx8', 30, 'quocte'],
+        ['See You Again', 'RgKAFK5djSk', 35, 'quocte'],
+        ['Happy', 'ZbZSe6N_BXs', 25, 'quocte'],
+        ['Roar', 'CevxZvSJLk8', 35, 'quocte'],
+        ['Firework', 'QGJuMBdaqIw', 35, 'quocte'],
+        ['Proud Of You', 'yWRt862ONBI', 28, 'quocte'],
+        ['Lemon Tree', 'wCQfkEkePx8', 25, 'quocte'],
+        ['Heal The World', 'BWf-eARnf6U', 45, 'quocte'],
+        ['Yesterday Once More', 'YTaWayUE5XA', 30, 'quocte'],
+        ['Baby Shark', 'XqZsoesa55w', 15, 'quocte'],
+        ['Doraemon no Uta', 'p0JFc5giu9U', 12, 'quocte'],
+        ['We Will Rock You', '-tJYN-eG1zk', 15, 'quocte'],
+        ['Áo trắng đến trường', '0kjvcqaKTwM', 20, 'hocduong'],
+        ['Ngồi lại bên nhau', 'EC41QNT4WYA', 30, 'hocduong'],
+        ['Mùa hạ cuối cùng', 'tAFzBR90k7k', 25, 'hocduong'],
+        ['Tạm biệt nhé', '6dbUgMD1vxU', 30, 'hocduong'],
+        ['Ngày ấy bạn và tôi', 'O1VMRDx3BCs', 30, 'hocduong'],
+        ['Cây đàn sinh viên', '4kVwSiYoy_s', 25, 'hocduong'],
+        ['Mùa thu ngày khai trường', '_EZNa0xBNA8', 15, 'hocduong'],
+        ['Trống cơm', 'hA6HpI7vyjo', 15, 'quehuong'],
+        ['Lý cây bông', 'FDQxpCNM_ig', 12, 'quehuong'],
+        ['Inh lả ơi', 'OQsJqVR8jJk', 12, 'quehuong'],
+        ['Bắc kim thang', '8p20BQm6s9Y', 12, 'quehuong'],
+        ['Cò lả', 'MS_HaP2-J4U', 15, 'quehuong'],
+        ['Quê hương ba miền', 'rRoFUbWhdSU', 15, 'quehuong'],
+        ['Chào em cô gái Lam Hồng', '3RyDE0mCmWs', 20, 'quehuong'],
+        ['Mẹ yêu con', 'm1BdUIQi2Yw', 25, 'quehuong'],
+        ['Gặp mẹ trong mơ', 'tsxDC9WRpsg', 30, 'vpop'],
+        ['Phép màu', 'jPjQJYKhhk4', 35, 'vpop'],
+        ['Đừng làm trái tim anh đau', 'abPmZCZZrFA', 35, 'vpop'],
+        ['Lạc trôi', 'Llw9Q6akRo4', 35, 'vpop'],
+        ['Nơi này có anh', 'FN7ALfpGxiI', 35, 'vpop'],
+        ['Ánh nắng của anh', '3UyotSd-Cp4', 35, 'vpop'],
+        ['Đi để trở về', 'iy53wPnNCYU', 35, 'vpop'],
+        ['Một nhà', 'TKlXc3iywoM', 30, 'vpop']
+      ];
+
+      var DISTRACTOR_BANK = RAW_SONG_BANK.map(function (row) {
+        return { title: row[0], category: row[3] };
+      });
+
+      var CATEGORY_LABELS = {
+        hocduong: 'Học đường · Lớp 7',
+        vpop: 'V-Pop tích cực',
+        quehuong: 'Quê hương · Tuổi trẻ',
+        quocte: 'Quốc tế · Nhạc phim'
+      };
+
+      // =========================================================================
+      // 2. PURE LOGIC ENGINE (EXPOSED VIA window.MusicGameEngine FOR UNIT TESTS)
+      // =========================================================================
+      function createSeededRng(seed) {
+        var s = (seed >>> 0) || 1;
+        return function () {
+          s = (s * 1664525 + 1013904223) >>> 0;
+          return s / 4294967296;
+        };
+      }
+
+      function shuffleArray(items, rng) {
+        var arr = items.slice();
+        var rand = typeof rng === 'function' ? rng : Math.random;
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(rand() * (i + 1));
+          var tmp = arr[i];
+          arr[i] = arr[j];
+          arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      function parseMediaUrl(rawUrl) {
+        var trimmed = (rawUrl || '').trim();
+        if (!trimmed) {
+          return { valid: false, mediaType: 'youtube', videoId: '', cleanUrl: '' };
+        }
+
+        // Direct 11-character YouTube ID
+        if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) {
+          return {
+            valid: true,
+            mediaType: 'youtube',
+            videoId: trimmed,
+            cleanUrl: 'https://www.youtube.com/watch?v=' + trimmed
+          };
+        }
+
+        // YouTube URL variants: watch?v=, youtu.be/, embed/, shorts/, live/
+        var ytPatterns = [
+          /(?:youtube\.com\/watch\?(?:.*&)?v=)([a-zA-Z0-9_-]{11})/,
+          /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+          /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+          /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+          /(?:youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/
+        ];
+
+        for (var i = 0; i < ytPatterns.length; i++) {
+          var match = trimmed.match(ytPatterns[i]);
+          if (match && match[1]) {
+            return {
+              valid: true,
+              mediaType: 'youtube',
+              videoId: match[1],
+              cleanUrl: trimmed
+            };
+          }
+        }
+
+        // Audio URL (.mp3, .wav, .ogg, .m4a, blob:, data:audio/)
+        if (/^https?:\/\/.+/i.test(trimmed) || /^data:audio\//i.test(trimmed) || /^blob:/i.test(trimmed) || /\.(mp3|wav|ogg|m4a|aac)(\?.*)?$/i.test(trimmed)) {
+          return {
+            valid: true,
+            mediaType: 'audio',
+            videoId: '',
+            cleanUrl: trimmed
+          };
+        }
+
+        return { valid: false, mediaType: 'youtube', videoId: '', cleanUrl: trimmed };
+      }
+
+      function generateDistractors(correctTitle, category, existingPool, rng) {
+        var normalizedTarget = (correctTitle || '').trim().toLowerCase();
+        var targetLen = (correctTitle || '').trim().length;
+        var source = Array.isArray(existingPool) && existingPool.length > 0 ? existingPool : DISTRACTOR_BANK;
+
+        var candidates = source.filter(function (item) {
+          var title = typeof item === 'string' ? item : item.title;
+          return title && title.trim().toLowerCase() !== normalizedTarget;
+        });
+
+        // Deduplicate candidates case-insensitively
+        var seen = {};
+        var uniqueCandidates = [];
+        for (var i = 0; i < candidates.length; i++) {
+          var cTitle = (typeof candidates[i] === 'string' ? candidates[i] : candidates[i].title).trim();
+          var key = cTitle.toLowerCase();
+          if (!seen[key]) {
+            seen[key] = true;
+            uniqueCandidates.push({
+              title: cTitle,
+              category: typeof candidates[i] === 'string' ? 'hocduong' : (candidates[i].category || 'hocduong')
+            });
+          }
+        }
+
+        // Score candidates by category match + similar string length
+        var shuffled = shuffleArray(uniqueCandidates, rng);
+        shuffled.sort(function (a, b) {
+          var aCatScore = a.category === category ? 0 : 10;
+          var bCatScore = b.category === category ? 0 : 10;
+          var aLenDiff = Math.abs(a.title.length - targetLen);
+          var bLenDiff = Math.abs(b.title.length - targetLen);
+          return (aCatScore + aLenDiff * 0.25) - (bCatScore + bLenDiff * 0.25);
+        });
+
+        // Pick top pool (up to 7) and shuffle so repeated clicks yield variety
+        var topPool = shuffleArray(shuffled.slice(0, Math.min(7, shuffled.length)), rng);
+        var picks = topPool.slice(0, 3).map(function (item) { return item.title; });
+
+        var fallbacks = ['Mái trường mến yêu', 'Bụi phấn', 'Nụ cười', 'Đi học'];
+        for (var f = 0; picks.length < 3 && f < fallbacks.length; f++) {
+          if (fallbacks[f].toLowerCase() !== normalizedTarget && picks.indexOf(fallbacks[f]) === -1) {
+            picks.push(fallbacks[f]);
+          }
+        }
+
+        var combined = shuffleArray([correctTitle.trim()].concat(picks), rng);
+        var correctIndex = combined.indexOf(correctTitle.trim());
+
+        return {
+          options: combined,
+          correctIndex: correctIndex >= 0 ? correctIndex : 0
+        };
+      }
+
+      var DEFAULT_SONGS = RAW_SONG_BANK.map(function (row, idx) {
+        var title = row[0];
+        var videoId = row[1];
+        var startSeconds = row[2];
+        var category = row[3];
+        var gen = generateDistractors(title, category, DISTRACTOR_BANK, createSeededRng(202607 + idx * 97));
+        return {
+          id: 's' + (idx + 1),
+          title: title,
+          mediaType: 'youtube',
+          mediaUrl: 'https://www.youtube.com/watch?v=' + videoId,
+          videoId: videoId,
+          startSeconds: startSeconds,
+          category: category,
+          options: gen.options,
+          correctIndex: gen.correctIndex
+        };
+      });
+
+      function computeRoundScore(remainingMs, totalMs, maxScore) {
+        var maxPts = typeof maxScore === 'number' ? maxScore : 1000;
+        if (totalMs <= 0 || remainingMs <= 0) return 0;
+        var ratio = Math.max(0, Math.min(1, remainingMs / totalMs));
+        return Math.round(ratio * maxPts);
+      }
+
+      function buildRandomQuiz(count, bank, rng) {
+        var source = Array.isArray(bank) && bank.length > 0 ? bank : DEFAULT_SONGS;
+        var limit = Math.max(1, Math.min(source.length, count || source.length));
+        var picked = shuffleArray(source, rng).slice(0, limit);
+
+        return picked.map(function (song, idx) {
+          var correctTitle = song.options[song.correctIndex] || song.title;
+          var shuffledOpts = shuffleArray(song.options, rng);
+          var newCorrectIdx = shuffledOpts.indexOf(correctTitle);
+          return {
+            id: 'rnd_' + Date.now() + '_' + idx + '_' + song.id,
+            title: song.title,
+            mediaType: song.mediaType,
+            mediaUrl: song.mediaUrl,
+            videoId: song.videoId,
+            startSeconds: song.startSeconds || 0,
+            category: song.category || 'hocduong',
+            options: shuffledOpts,
+            correctIndex: newCorrectIdx >= 0 ? newCorrectIdx : 0
+          };
+        });
+      }
+
+      function sanitizeSongs(list) {
+        if (!Array.isArray(list) || list.length === 0) {
+          return DEFAULT_SONGS.map(function (s) {
+            return Object.assign({}, s, { options: s.options.slice() });
+          });
+        }
+        var valid = [];
+        for (var i = 0; i < list.length; i++) {
+          var s = list[i];
+          if (!s || typeof s.title !== 'string' || !s.title.trim()) continue;
+          if (!Array.isArray(s.options) || s.options.length !== 4) continue;
+          var parsed = parseMediaUrl(s.mediaUrl || s.videoId || '');
+          if (!parsed.valid) continue;
+          var cIdx = Number(s.correctIndex);
+          if (isNaN(cIdx) || cIdx < 0 || cIdx > 3) cIdx = 0;
+          valid.push({
+            id: s.id || ('song_' + i),
+            title: s.title.trim(),
+            mediaType: parsed.mediaType,
+            mediaUrl: parsed.cleanUrl,
+            videoId: parsed.videoId,
+            startSeconds: Math.max(0, parseInt(s.startSeconds, 10) || 0),
+            category: s.category || 'hocduong',
+            options: s.options.map(function (o) { return String(o || '').trim() || 'Đáp án'; }),
+            correctIndex: cIdx
+          });
+        }
+        return valid.length > 0 ? valid : sanitizeSongs(null);
+      }
+
+      window.MusicGameEngine = {
+        DEFAULT_SONGS: DEFAULT_SONGS,
+        DISTRACTOR_BANK: DISTRACTOR_BANK,
+        shuffleArray: shuffleArray,
+        parseMediaUrl: parseMediaUrl,
+        generateDistractors: generateDistractors,
+        computeRoundScore: computeRoundScore,
+        buildRandomQuiz: buildRandomQuiz,
+        sanitizeSongs: sanitizeSongs
+      };
+
+      // =========================================================================
+      // 3. WEB AUDIO API SOUND EFFECTS
+      // =========================================================================
+      var audioCtx = null;
+      function getAudioContext() {
+        if (!audioCtx) {
+          var Ctx = window.AudioContext || window.webkitAudioContext;
+          if (Ctx) audioCtx = new Ctx();
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(function () {});
+        }
+        return audioCtx;
+      }
+
+      function playTone(freq, startTime, duration, type, gainVal) {
+        var ctx = getAudioContext();
+        if (!ctx || !state.room.sfxEnabled) return;
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = type || 'triangle';
+        osc.frequency.setValueAtTime(freq, startTime);
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.exponentialRampToValueAtTime(gainVal || 0.16, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.02);
+      }
+
+      function playSfx(kind) {
+        var ctx = getAudioContext();
+        if (!ctx || !state.room.sfxEnabled) return;
+        var now = ctx.currentTime;
+        if (kind === 'correct') {
+          playTone(523.25, now, 0.14, 'triangle', 0.18);
+          playTone(659.25, now + 0.09, 0.14, 'triangle', 0.18);
+          playTone(783.99, now + 0.18, 0.16, 'triangle', 0.2);
+          playTone(1046.5, now + 0.27, 0.34, 'sine', 0.22);
+        } else if (kind === 'wrong') {
+          playTone(329.63, now, 0.16, 'sawtooth', 0.09);
+          playTone(261.63, now + 0.14, 0.22, 'sawtooth', 0.09);
+          playTone(220.0, now + 0.3, 0.32, 'triangle', 0.11);
+        } else if (kind === 'timeout') {
+          playTone(392.0, now, 0.18, 'square', 0.08);
+          playTone(293.66, now + 0.2, 0.38, 'square', 0.08);
+        } else if (kind === 'click') {
+          playTone(620, now, 0.06, 'sine', 0.09);
+        }
+      }
+
+      // =========================================================================
+      // 4. APPLICATION STATE & STORAGE
+      // =========================================================================
+      function loadRoomConfig() {
+        var defaults = {
+          topic: 'Nghe nhạc đoán tên bài hát',
+          pin: 'Lớp 7A · 828 804',
+          players: 32,
+          durationSec: 25,
+          sfxEnabled: true
+        };
+        try {
+          var raw = localStorage.getItem(SETTINGS_KEY);
+          if (!raw) return defaults;
+          var parsed = JSON.parse(raw);
+          return {
+            topic: (parsed.topic || defaults.topic).trim(),
+            pin: (parsed.pin || defaults.pin).trim(),
+            players: Math.max(1, parseInt(parsed.players, 10) || defaults.players),
+            durationSec: Math.max(10, Math.min(90, parseInt(parsed.durationSec, 10) || defaults.durationSec)),
+            sfxEnabled: parsed.sfxEnabled !== false
+          };
+        } catch (e) {
+          return defaults;
+        }
+      }
+
+      function loadSongs() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return sanitizeSongs(null);
+          var parsed = JSON.parse(raw);
+          return sanitizeSongs(parsed);
+        } catch (e) {
+          return sanitizeSongs(null);
+        }
+      }
+
+      function saveSongs(songs) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+        } catch (e) {}
+      }
+
+      function saveRoomConfig(cfg) {
+        try {
+          localStorage.setItem(SETTINGS_KEY, JSON.stringify(cfg));
+        } catch (e) {}
+      }
+
+      var state = {
+        room: loadRoomConfig(),
+        songs: loadSongs(),
+        currentIndex: 0,
+        phase: 'playing', // 'playing' | 'paused' | 'answered' | 'results'
+        selectedOption: null,
+        totalScore: 0,
+        correctCount: 0,
+        remainingMs: 25000,
+        totalMs: 25000,
+        lastTickAt: 0,
+        rafId: null,
+        blurEnabled: true,
+        isMuted: false,
+        ytPlayer: null,
+        ytReady: false,
+        ytApiLoaded: false,
+        pendingYtLoad: null
+      };
+      state.totalMs = state.room.durationSec * 1000;
+      state.remainingMs = state.totalMs;
+
+      // =========================================================================
+      // 5. DOM REFERENCES
+      // =========================================================================
+      var el = {
+        headerPinText: document.getElementById('header-pin-text'),
+        headerTopicText: document.getElementById('header-topic-text'),
+        headerPlayersCount: document.getElementById('header-players-count'),
+        headerTotalScore: document.getElementById('header-total-score'),
+        headerSlideCounter: document.getElementById('header-slide-counter'),
+        pinCopyBtn: document.getElementById('pin-copy-btn'),
+        pauseBtn: document.getElementById('pause-btn'),
+        pauseIconSvg: document.getElementById('pause-icon-svg'),
+        nextBtn: document.getElementById('next-btn'),
+        settingsBtn: document.getElementById('settings-btn'),
+        fullscreenBtn: document.getElementById('fullscreen-btn'),
+        hostBadgeBtn: document.getElementById('host-badge-btn'),
+
+        questionHeading: document.getElementById('question-heading'),
+        answersList: document.getElementById('answers-list'),
+        timerTrack: document.getElementById('timer-track'),
+        timerFill: document.getElementById('timer-fill'),
+        timerScoreReadout: document.getElementById('timer-score-readout'),
+        roundFeedback: document.getElementById('round-feedback'),
+        feedbackMsg: document.getElementById('feedback-msg'),
+        roundCategoryLabel: document.getElementById('round-category-label'),
+
+        ytMount: document.getElementById('yt-player-mount'),
+        mp3Stage: document.getElementById('mp3-stage'),
+        mp3Vinyl: document.getElementById('mp3-vinyl'),
+        mp3Eq: document.getElementById('mp3-eq'),
+        mp3RevealedTitle: document.getElementById('mp3-revealed-title'),
+        html5Audio: document.getElementById('html5-audio'),
+        ytFallbackBox: document.getElementById('yt-fallback-box'),
+        ytFallbackDesc: document.getElementById('yt-fallback-desc'),
+
+        mysteryOverlay: document.getElementById('mystery-overlay'),
+        mysteryVinyl: document.getElementById('mystery-vinyl'),
+        mysteryEq: document.getElementById('mystery-eq'),
+        mysteryStatusTitle: document.getElementById('mystery-status-title'),
+        mysteryStatusSub: document.getElementById('mystery-status-sub'),
+        playMediaBtn: document.getElementById('play-media-btn'),
+        toggleBlurBtn: document.getElementById('toggle-blur-btn'),
+        toggleBlurText: document.getElementById('toggle-blur-text'),
+        blurEyeIcon: document.getElementById('blur-eye-icon'),
+        muteBtn: document.getElementById('mute-btn'),
+        muteIconSvg: document.getElementById('mute-icon-svg'),
+
+        settingsModal: document.getElementById('settings-modal'),
+        closeSettingsBtn: document.getElementById('close-settings-btn'),
+        cfgTopic: document.getElementById('cfg-topic'),
+        cfgPin: document.getElementById('cfg-pin'),
+        cfgPlayers: document.getElementById('cfg-players'),
+        cfgDuration: document.getElementById('cfg-duration'),
+        cfgSfx: document.getElementById('cfg-sfx'),
+        saveRoomCfgBtn: document.getElementById('save-room-cfg-btn'),
+
+        songFormHeading: document.getElementById('song-form-heading'),
+        editingSongId: document.getElementById('editing-song-id'),
+        songTitleInput: document.getElementById('song-title-input'),
+        songCategorySelect: document.getElementById('song-category-select'),
+        songStartInput: document.getElementById('song-start-input'),
+        songUrlInput: document.getElementById('song-url-input'),
+        urlParseHint: document.getElementById('url-parse-hint'),
+        autoDistractorsBtn: document.getElementById('auto-distractors-btn'),
+        songFormError: document.getElementById('song-form-error'),
+        submitSongBtn: document.getElementById('submit-song-btn'),
+        cancelEditBtn: document.getElementById('cancel-edit-btn'),
+
+        playlistCountHeading: document.getElementById('playlist-count-heading'),
+        randomCountSelect: document.getElementById('random-count-select'),
+        playRandomBtn: document.getElementById('play-random-btn'),
+        restoreDefaultsBtn: document.getElementById('restore-defaults-btn'),
+        songSearchInput: document.getElementById('song-search-input'),
+        songFilterSelect: document.getElementById('song-filter-select'),
+        settingsSongList: document.getElementById('settings-song-list'),
+
+        resultsModal: document.getElementById('results-modal'),
+        closeResultsBtn: document.getElementById('close-results-btn'),
+        resTotalScore: document.getElementById('res-total-score'),
+        resCorrectCount: document.getElementById('res-correct-count'),
+        resAccuracy: document.getElementById('res-accuracy'),
+        replayQuizBtn: document.getElementById('replay-quiz-btn'),
+        resultsRandomBtn: document.getElementById('results-random-btn'),
+
+        toast: document.getElementById('toast')
+      };
+
+      var toastTimer = null;
+      function showToast(msg) {
+        el.toast.textContent = msg;
+        el.toast.classList.add('is-visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          el.toast.classList.remove('is-visible');
+        }, 2400);
+      }
+
+      // =========================================================================
+      // 6. YOUTUBE IFRAME API & MP3 PLAYER CONTROLLER
+      // =========================================================================
+      function loadYouTubeApi() {
+        if (state.ytApiLoaded || window.YT) return;
+        state.ytApiLoaded = true;
+        var tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.async = true;
+        tag.onerror = function () {
+          state.ytApiLoaded = false;
+          var current = getCurrentSong();
+          if (current && current.mediaType === 'youtube') {
+            el.ytFallbackBox.classList.add('is-visible');
+            el.ytFallbackDesc.textContent = 'Không thể tải trình phát YouTube. Vui lòng kiểm tra kết nối mạng hoặc thử bài hát MP3.';
+          }
+        };
+        document.head.appendChild(tag);
+      }
+
+      window.onYouTubeIframeAPIReady = function () {
+        if (!document.getElementById('yt-iframe-target')) {
+          var div = document.createElement('div');
+          div.id = 'yt-iframe-target';
+          el.ytMount.appendChild(div);
+        }
+        var initialLoad = state.pendingYtLoad;
+        state.pendingYtLoad = null;
+        var playerVars = {
+          autoplay: 1,
+          controls: 1,
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1
+        };
+        if (window.location && /^https?:/.test(window.location.protocol) && window.location.origin) {
+          playerVars.origin = window.location.origin;
+        }
+        var playerConfig = {
+          width: '100%',
+          height: '100%',
+          playerVars: playerVars,
+          events: {
+            onReady: function () {
+              state.ytReady = true;
+              if (state.isMuted) state.ytPlayer.mute();
+              else state.ytPlayer.unMute();
+              if (state.pendingYtLoad) {
+                var p = state.pendingYtLoad;
+                state.pendingYtLoad = null;
+                state.ytPlayer.loadVideoById({
+                  videoId: p.videoId,
+                  startSeconds: p.startSeconds || 0
+                });
+              }
+              if (state.phase === 'paused') {
+                try { state.ytPlayer.pauseVideo(); } catch (e) {}
+              }
+            },
+            onError: function (evt) {
+              var current = getCurrentSong();
+              if (current && current.mediaType === 'youtube') {
+                el.ytFallbackBox.classList.add('is-visible');
+                el.ytFallbackDesc.textContent = 'Mã lỗi YouTube (' + evt.data + '). Video này có thể hạn chế nhúng hoặc cần đổi link khác trong Cài đặt.';
+              }
+            }
+          }
+        };
+        if (initialLoad && initialLoad.videoId) {
+          playerConfig.videoId = initialLoad.videoId;
+          playerConfig.playerVars.start = initialLoad.startSeconds || 0;
+        }
+        state.ytPlayer = new window.YT.Player('yt-iframe-target', playerConfig);
+      };
+
+      function getCurrentSong() {
+        return state.songs[state.currentIndex] || state.songs[0];
+      }
+
+      function loadMediaForSong(song) {
+        el.ytFallbackBox.classList.remove('is-visible');
+        if (!song) return;
+
+        if (song.mediaType === 'audio') {
+          // Stop YouTube if running
+          if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.stopVideo === 'function') {
+            try { state.ytPlayer.stopVideo(); } catch (e) {}
+          }
+          el.ytMount.style.display = 'none';
+          el.mp3Stage.classList.add('is-active');
+          el.mp3RevealedTitle.textContent = song.title;
+          el.html5Audio.src = song.mediaUrl;
+          el.html5Audio.currentTime = song.startSeconds || 0;
+          el.html5Audio.muted = state.isMuted;
+          el.html5Audio.play().catch(function () {});
+        } else {
+          // YouTube mode
+          el.html5Audio.pause();
+          el.mp3Stage.classList.remove('is-active');
+          el.ytMount.style.display = 'block';
+
+          if (!window.YT || !window.YT.Player) {
+            loadYouTubeApi();
+          }
+
+          if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.loadVideoById === 'function') {
+            try {
+              state.ytPlayer.loadVideoById({
+                videoId: song.videoId,
+                startSeconds: song.startSeconds || 0
+              });
+              if (state.isMuted) state.ytPlayer.mute();
+              else state.ytPlayer.unMute();
+            } catch (e) {}
+          } else {
+            state.pendingYtLoad = {
+              videoId: song.videoId,
+              startSeconds: song.startSeconds || 0
+            };
+          }
+        }
+      }
+
+      function pauseCurrentMedia() {
+        var song = getCurrentSong();
+        if (!song) return;
+        if (song.mediaType === 'audio') {
+          el.html5Audio.pause();
+        } else if (state.ytReady && state.ytPlayer && typeof state.ytPlayer.pauseVideo === 'function') {
+          try { state.ytPlayer.pauseVideo(); } catch (e) {}
+        }
+      }
+
+      function resumeOrReplayMedia(fromStart) {
+        var song = getCurrentSong();
+        if (!song) return;
+        if (song.mediaType === 'audio') {
+          if (fromStart) el.html5Audio.currentTime = song.startSeconds || 0;
+          el.html5Audio.muted = state.isMuted;
+          el.html5Audio.play().catch(function () {});
+        } else if (state.ytReady && state.ytPlayer) {
+          try {
+            if (fromStart) {
+              state.ytPlayer.seekTo(song.startSeconds || 0, true);
+            }
+            state.ytPlayer.playVideo();
+          } catch (e) {}
+        } else {
+          loadMediaForSong(song);
+        }
+      }
+
+      function applyMuteState() {
+        el.html5Audio.muted = state.isMuted;
+        if (state.ytReady && state.ytPlayer) {
+          try {
+            if (state.isMuted) state.ytPlayer.mute();
+            else state.ytPlayer.unMute();
+          } catch (e) {}
+        }
+
+        el.muteBtn.classList.toggle('is-muted', state.isMuted);
+        el.muteBtn.setAttribute('aria-pressed', String(state.isMuted));
+        el.muteBtn.setAttribute('aria-label', state.isMuted ? 'Bật tiếng trình phát nhạc' : 'Tắt tiếng trình phát nhạc');
+
+        if (state.isMuted) {
+          el.muteIconSvg.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/>';
+        } else {
+          el.muteIconSvg.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>';
+        }
+      }
+
+      // =========================================================================
+      // 7. BLUR / COVER OVERLAY & VISUALS
+      // =========================================================================
+      function updateBlurOverlay() {
+        var shouldCover = state.blurEnabled && state.phase !== 'answered' && state.phase !== 'results';
+        el.mysteryOverlay.classList.toggle('is-hidden', !shouldCover);
+
+        var isPaused = state.phase === 'paused';
+        el.mysteryVinyl.classList.toggle('is-paused', isPaused);
+        el.mysteryEq.classList.toggle('is-paused', isPaused);
+        el.mp3Vinyl.classList.toggle('is-paused', isPaused);
+        el.mp3Eq.classList.toggle('is-paused', isPaused);
+
+        el.toggleBlurBtn.classList.toggle('is-blur-on', state.blurEnabled);
+        el.toggleBlurBtn.setAttribute('aria-pressed', String(state.blurEnabled));
+        el.toggleBlurText.textContent = state.blurEnabled ? 'Che video khi đoán: BẬT' : 'Che video khi đoán: TẮT';
+
+        if (state.blurEnabled) {
+          el.blurEyeIcon.innerHTML = '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/>';
+        } else {
+          el.blurEyeIcon.innerHTML = '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+        }
+      }
+
+      // =========================================================================
+      // 8. RENDER & GAMEPLAY LOOP
+      // =========================================================================
+      function renderHeader() {
+        el.headerPinText.textContent = state.room.pin;
+        el.headerTopicText.textContent = state.room.topic;
+        el.headerPlayersCount.textContent = String(state.room.players);
+        el.headerTotalScore.textContent = state.totalScore + ' điểm';
+        el.headerSlideCounter.textContent = 'Câu ' + (state.currentIndex + 1) + '/' + state.songs.length;
+
+        var isPaused = state.phase === 'paused';
+        el.pauseBtn.classList.toggle('is-active', isPaused);
+        el.pauseBtn.setAttribute('aria-label', isPaused ? 'Tiếp tục' : 'Tạm dừng');
+        if (isPaused) {
+          el.pauseIconSvg.innerHTML = '<polygon points="6 4 20 12 6 20 6 4"/>';
+        } else {
+          el.pauseIconSvg.innerHTML = '<rect x="6" y="4" width="4" height="16" rx="1.5"/><rect x="14" y="4" width="4" height="16" rx="1.5"/>';
+        }
+      }
+
+      function renderAnswers() {
+        var song = getCurrentSong();
+        var letters = ['A', 'B', 'C', 'D'];
+        el.answersList.innerHTML = '';
+
+        song.options.forEach(function (optText, idx) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'answer-pill';
+          btn.setAttribute('data-option-index', String(idx));
+
+          var letterSpan = document.createElement('span');
+          letterSpan.className = 'answer-letter';
+          letterSpan.textContent = letters[idx];
+
+          var textSpan = document.createElement('span');
+          textSpan.className = 'answer-text';
+          textSpan.textContent = optText;
+
+          var statusSpan = document.createElement('span');
+          statusSpan.className = 'answer-status-icon';
+          statusSpan.setAttribute('aria-hidden', 'true');
+
+          if (state.phase === 'answered') {
+            btn.disabled = true;
+            var isCorrect = idx === song.correctIndex;
+            var isSelected = idx === state.selectedOption;
+
+            if (isSelected) {
+              btn.classList.add('is-selected');
+            }
+            if (isCorrect) {
+              btn.classList.add('is-correct');
+              statusSpan.innerHTML = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            } else if (isSelected && !isCorrect) {
+              btn.classList.add('is-selected-wrong');
+              statusSpan.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+            } else {
+              btn.classList.add('is-dimmed');
+            }
+          }
+
+          btn.appendChild(letterSpan);
+          btn.appendChild(textSpan);
+          btn.appendChild(statusSpan);
+
+          btn.addEventListener('click', function () {
+            handleAnswerSelect(idx);
+          });
+
+          el.answersList.appendChild(btn);
+        });
+      }
+
+      function renderTimerBar() {
+        var score = computeRoundScore(state.remainingMs, state.totalMs, 1000);
+        var ratio = state.totalMs > 0 ? Math.max(0, Math.min(1, state.remainingMs / state.totalMs)) : 0;
+        el.timerFill.style.transform = 'scaleX(' + ratio.toFixed(4) + ')';
+        el.timerFill.classList.toggle('is-paused', state.phase !== 'playing');
+        el.timerScoreReadout.textContent = String(score);
+        el.timerTrack.setAttribute('aria-valuenow', String(score));
+      }
+
+      function updateBodyState() {
+        document.body.dataset.state = state.phase;
+      }
+
+      function startQuestion(index, autoPlay) {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.currentIndex = Math.max(0, Math.min(state.songs.length - 1, index));
+        state.phase = 'playing';
+        state.selectedOption = null;
+        state.totalMs = state.room.durationSec * 1000;
+        state.remainingMs = state.totalMs;
+        state.lastTickAt = performance.now();
+
+        var song = getCurrentSong();
+        // Re-trigger question heading pop animation
+        el.questionHeading.style.animation = 'none';
+        void el.questionHeading.offsetWidth;
+        el.questionHeading.style.animation = '';
+
+        el.roundFeedback.className = 'round-feedback';
+        el.feedbackMsg.textContent = 'Lắng nghe giai điệu và chọn tên bài hát đúng!';
+        el.roundCategoryLabel.textContent = CATEGORY_LABELS[song.category] || 'Âm nhạc Lớp 7';
+
+        updateBodyState();
+        renderHeader();
+        renderAnswers();
+        renderTimerBar();
+        updateBlurOverlay();
+
+        if (autoPlay !== false) {
+          loadMediaForSong(song);
+        }
+
+        state.rafId = requestAnimationFrame(tickTimer);
+      }
+
+      function tickTimer(now) {
+        if (state.phase !== 'playing') return;
+        var rawDt = now - state.lastTickAt;
+        state.lastTickAt = now;
+        var clampedDt = Math.min(rawDt, 120);
+        state.remainingMs = Math.max(0, state.remainingMs - clampedDt);
+        renderTimerBar();
+
+        if (state.remainingMs <= 0) {
+          handleTimeout();
+          return;
+        }
+        state.rafId = requestAnimationFrame(tickTimer);
+      }
+
+      function handleAnswerSelect(idx) {
+        if (state.phase !== 'playing' && state.phase !== 'paused') return;
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.phase = 'answered';
+        state.selectedOption = idx;
+
+        var song = getCurrentSong();
+        var isRight = idx === song.correctIndex;
+        var earned = isRight ? computeRoundScore(state.remainingMs, state.totalMs, 1000) : 0;
+
+        if (isRight) {
+          state.totalScore += earned;
+          state.correctCount += 1;
+          el.roundFeedback.className = 'round-feedback is-win';
+          el.feedbackMsg.textContent = 'Chính xác! +' + earned + ' điểm (' + song.title + ')';
+          playSfx('correct');
+        } else {
+          el.roundFeedback.className = 'round-feedback is-lose';
+          el.feedbackMsg.textContent = 'Chưa đúng! Đáp án là: ' + song.options[song.correctIndex];
+          playSfx('wrong');
+        }
+
+        updateBodyState();
+        renderHeader();
+        renderAnswers();
+        renderTimerBar();
+        updateBlurOverlay(); // Automatically lifts blur to show MV!
+      }
+
+      function handleTimeout() {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.phase = 'answered';
+        state.selectedOption = null;
+        state.remainingMs = 0;
+
+        var song = getCurrentSong();
+        el.roundFeedback.className = 'round-feedback is-lose';
+        el.feedbackMsg.textContent = 'Hết giờ! Đáp án đúng là: ' + song.options[song.correctIndex];
+        playSfx('timeout');
+
+        updateBodyState();
+        renderHeader();
+        renderAnswers();
+        renderTimerBar();
+        updateBlurOverlay();
+      }
+
+      function togglePause() {
+        if (state.phase === 'playing') {
+          state.phase = 'paused';
+          if (state.rafId) {
+            cancelAnimationFrame(state.rafId);
+            state.rafId = null;
+          }
+          pauseCurrentMedia();
+          el.roundFeedback.className = 'round-feedback is-paused';
+          el.feedbackMsg.textContent = 'Đang tạm dừng — Bấm Tiếp tục để chơi tiếp';
+        } else if (state.phase === 'paused') {
+          state.phase = 'playing';
+          state.lastTickAt = performance.now();
+          resumeOrReplayMedia(false);
+          el.roundFeedback.className = 'round-feedback';
+          el.feedbackMsg.textContent = 'Lắng nghe giai điệu và chọn tên bài hát đúng!';
+          state.rafId = requestAnimationFrame(tickTimer);
+        } else {
+          return;
+        }
+        updateBodyState();
+        renderHeader();
+        renderTimerBar();
+        updateBlurOverlay();
+      }
+
+      function goNextQuestion() {
+        playSfx('click');
+        if (state.currentIndex + 1 < state.songs.length) {
+          startQuestion(state.currentIndex + 1, true);
+        } else {
+          openResultsModal();
+        }
+      }
+
+      function openResultsModal() {
+        if (state.rafId) {
+          cancelAnimationFrame(state.rafId);
+          state.rafId = null;
+        }
+        state.phase = 'results';
+        pauseCurrentMedia();
+        updateBodyState();
+        el.resTotalScore.textContent = String(state.totalScore);
+        el.resCorrectCount.textContent = state.correctCount + '/' + state.songs.length;
+        var pct = state.songs.length > 0 ? Math.round((state.correctCount / state.songs.length) * 100) : 0;
+        el.resAccuracy.textContent = pct + '%';
+        el.resultsModal.classList.add('is-open');
+      }
+
+      function restartCurrentQuiz() {
+        el.resultsModal.classList.remove('is-open');
+        state.totalScore = 0;
+        state.correctCount = 0;
+        startQuestion(0, true);
+      }
+
+      // =========================================================================
+      // 9. SETTINGS MODAL & SONG CRUD
+      // =========================================================================
+      function syncRoomConfigInputs() {
+        el.cfgTopic.value = state.room.topic;
+        el.cfgPin.value = state.room.pin;
+        el.cfgPlayers.value = String(state.room.players);
+        el.cfgDuration.value = String(state.room.durationSec);
+        el.cfgSfx.checked = state.room.sfxEnabled;
+      }
+
+      function resetSongForm() {
+        el.editingSongId.value = '';
+        el.songFormHeading.textContent = '2. Thêm bài hát nhanh & Tự động tạo đáp án';
+        el.submitSongBtn.textContent = 'Thêm bài hát';
+        el.cancelEditBtn.style.display = 'none';
+        el.songTitleInput.value = '';
+        el.songUrlInput.value = '';
+        el.songStartInput.value = '0';
+        el.songCategorySelect.value = 'hocduong';
+        el.urlParseHint.textContent = 'Hỗ trợ tự động nhận diện YouTube ID và file nhạc MP3/OGG/WAV.';
+        el.songFormError.textContent = '';
+        for (var i = 0; i < 4; i++) {
+          document.getElementById('opt-input-' + i).value = '';
+        }
+        document.getElementById('opt-radio-0').checked = true;
+      }
+
+      function getFormCorrectIndex() {
+        for (var i = 0; i < 4; i++) {
+          if (document.getElementById('opt-radio-' + i).checked) return i;
+        }
+        return 0;
+      }
+
+      function renderSettingsSongList() {
+        var searchQuery = (el.songSearchInput && el.songSearchInput.value ? el.songSearchInput.value : '').trim().toLowerCase();
+        var catFilter = el.songFilterSelect && el.songFilterSelect.value ? el.songFilterSelect.value : 'all';
+
+        var filteredEntries = [];
+        for (var sIdx = 0; sIdx < state.songs.length; sIdx++) {
+          var candidate = state.songs[sIdx];
+          var matchesCat = catFilter === 'all' || candidate.category === catFilter;
+          var matchesQuery = !searchQuery || candidate.title.toLowerCase().indexOf(searchQuery) !== -1;
+          if (matchesCat && matchesQuery) {
+            filteredEntries.push({ song: candidate, idx: sIdx });
+          }
+        }
+
+        if (filteredEntries.length !== state.songs.length) {
+          el.playlistCountHeading.textContent = '3. Danh sách bài hát (' + filteredEntries.length + '/' + state.songs.length + ' bài)';
+        } else {
+          el.playlistCountHeading.textContent = '3. Danh sách bài hát hiện tại (' + state.songs.length + ' bài)';
+        }
+        el.settingsSongList.innerHTML = '';
+
+        if (filteredEntries.length === 0) {
+          var emptyMsg = document.createElement('div');
+          emptyMsg.className = 'song-item';
+          emptyMsg.style.textAlign = 'center';
+          emptyMsg.style.color = '#b8b3d4';
+          emptyMsg.style.fontWeight = '700';
+          emptyMsg.textContent = 'Không tìm thấy bài hát phù hợp với từ khóa hoặc chủ đề đã chọn.';
+          el.settingsSongList.appendChild(emptyMsg);
+          return;
+        }
+
+        filteredEntries.forEach(function (entry) {
+          var song = entry.song;
+          var idx = entry.idx;
+          var item = document.createElement('div');
+          item.className = 'song-item' + (idx === state.currentIndex ? ' is-current' : '');
+
+          var top = document.createElement('div');
+          top.className = 'song-item-top';
+
+          var info = document.createElement('div');
+          info.className = 'song-item-info';
+
+          var idxBadge = document.createElement('span');
+          idxBadge.className = 'song-idx';
+          idxBadge.textContent = String(idx + 1);
+
+          var textWrap = document.createElement('div');
+          var nameDiv = document.createElement('div');
+          nameDiv.className = 'song-name';
+          nameDiv.textContent = song.title;
+          var metaDiv = document.createElement('div');
+          metaDiv.className = 'song-meta-text';
+          metaDiv.textContent = (song.mediaType === 'audio' ? 'Audio MP3' : 'YouTube: ' + song.videoId) + ' · Bắt đầu ở ' + (song.startSeconds || 0) + 's · ' + (CATEGORY_LABELS[song.category] || 'Lớp 7');
+          textWrap.appendChild(nameDiv);
+          textWrap.appendChild(metaDiv);
+
+          info.appendChild(idxBadge);
+          info.appendChild(textWrap);
+
+          var actions = document.createElement('div');
+          actions.className = 'btn-group';
+
+          var jumpBtn = document.createElement('button');
+          jumpBtn.type = 'button';
+          jumpBtn.className = 'btn btn-green btn-sm';
+          jumpBtn.textContent = 'Phát bài này';
+          jumpBtn.setAttribute('aria-label', 'Phát bài ' + song.title);
+          jumpBtn.addEventListener('click', function () {
+            closeSettingsModal();
+            startQuestion(idx, true);
+          });
+
+          var regenBtn = document.createElement('button');
+          regenBtn.type = 'button';
+          regenBtn.className = 'btn btn-purple btn-sm';
+          regenBtn.textContent = 'Đổi đáp án nhiễu';
+          regenBtn.setAttribute('aria-label', 'Tạo lại 3 đáp án nhiễu cho ' + song.title);
+          regenBtn.addEventListener('click', function () {
+            var pool = DISTRACTOR_BANK.concat(state.songs.map(function (s) {
+              return { title: s.title, category: s.category };
+            }));
+            var gen = generateDistractors(song.title, song.category, pool);
+            state.songs[idx].options = gen.options;
+            state.songs[idx].correctIndex = gen.correctIndex;
+            saveSongs(state.songs);
+            renderSettingsSongList();
+            if (idx === state.currentIndex) renderAnswers();
+            showToast('Đã trộn lại 3 đáp án nhiễu cho "' + song.title + '"');
+          });
+
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn btn-secondary btn-sm';
+          editBtn.textContent = 'Sửa';
+          editBtn.setAttribute('aria-label', 'Sửa bài ' + song.title);
+          editBtn.addEventListener('click', function () {
+            el.editingSongId.value = song.id;
+            el.songFormHeading.textContent = '2. Chỉnh sửa bài hát #' + (idx + 1);
+            el.submitSongBtn.textContent = 'Cập nhật bài hát';
+            el.cancelEditBtn.style.display = 'inline-flex';
+            el.songTitleInput.value = song.title;
+            el.songUrlInput.value = song.mediaUrl;
+            el.songStartInput.value = String(song.startSeconds || 0);
+            el.songCategorySelect.value = song.category || 'hocduong';
+            for (var k = 0; k < 4; k++) {
+              document.getElementById('opt-input-' + k).value = song.options[k] || '';
+            }
+            var radioEl = document.getElementById('opt-radio-' + song.correctIndex);
+            if (radioEl) radioEl.checked = true;
+            updateUrlPreviewHint();
+            el.songFormError.textContent = '';
+            el.songTitleInput.focus();
+          });
+
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn btn-danger btn-sm';
+          delBtn.textContent = 'Xóa';
+          delBtn.setAttribute('aria-label', 'Xóa bài ' + song.title);
+          delBtn.addEventListener('click', function () {
+            if (state.songs.length <= 1) {
+              showToast('Cần giữ lại ít nhất 1 bài hát trong danh sách!');
+              return;
+            }
+            var deletedCurrent = idx === state.currentIndex;
+            if (el.editingSongId.value === song.id) {
+              resetSongForm();
+            }
+            state.songs.splice(idx, 1);
+            saveSongs(state.songs);
+            if (idx < state.currentIndex) {
+              state.currentIndex = Math.max(0, state.currentIndex - 1);
+            } else if (state.currentIndex >= state.songs.length) {
+              state.currentIndex = Math.max(0, state.songs.length - 1);
+            }
+            renderSettingsSongList();
+            renderHeader();
+            if (deletedCurrent) {
+              startQuestion(state.currentIndex, false);
+            }
+            showToast('Đã xóa "' + song.title + '"');
+          });
+
+          actions.appendChild(jumpBtn);
+          actions.appendChild(regenBtn);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+
+          top.appendChild(info);
+          top.appendChild(actions);
+
+          var optsGrid = document.createElement('div');
+          optsGrid.className = 'song-options-preview';
+          var letters = ['A', 'B', 'C', 'D'];
+          song.options.forEach(function (o, oIdx) {
+            var chip = document.createElement('div');
+            chip.className = 'opt-chip' + (oIdx === song.correctIndex ? ' is-right' : '');
+            chip.textContent = letters[oIdx] + '. ' + o + (oIdx === song.correctIndex ? ' ✓' : '');
+            optsGrid.appendChild(chip);
+          });
+
+          item.appendChild(top);
+          item.appendChild(optsGrid);
+          el.settingsSongList.appendChild(item);
+        });
+      }
+
+      function openSettingsModal() {
+        if (state.phase === 'playing') {
+          togglePause();
+        }
+        syncRoomConfigInputs();
+        renderSettingsSongList();
+        el.settingsModal.classList.add('is-open');
+      }
+
+      function closeSettingsModal() {
+        el.settingsModal.classList.remove('is-open');
+        resetSongForm();
+      }
+
+      function updateUrlPreviewHint() {
+        var val = el.songUrlInput.value;
+        if (!val.trim()) {
+          el.urlParseHint.textContent = 'Hỗ trợ tự động nhận diện YouTube ID và file nhạc MP3/OGG/WAV.';
+          el.urlParseHint.style.color = '#93c5fd';
+          return;
+        }
+        var parsed = parseMediaUrl(val);
+        if (!parsed.valid) {
+          el.urlParseHint.textContent = 'Chưa nhận diện được link YouTube hoặc MP3 hợp lệ.';
+          el.urlParseHint.style.color = '#fca5a5';
+        } else if (parsed.mediaType === 'youtube') {
+          el.urlParseHint.textContent = 'Đã nhận diện YouTube Video ID: ' + parsed.videoId;
+          el.urlParseHint.style.color = '#86efac';
+        } else {
+          el.urlParseHint.textContent = 'Đã nhận diện liên kết Audio / MP3 trực tiếp.';
+          el.urlParseHint.style.color = '#86efac';
+        }
+      }
+
+      function handleAutoDistractorsClick() {
+        var title = el.songTitleInput.value.trim();
+        if (!title) {
+          el.songFormError.textContent = 'Vui lòng nhập Tên bài hát đúng trước khi tạo đáp án nhiễu.';
+          el.songTitleInput.focus();
+          return;
+        }
+        el.songFormError.textContent = '';
+        var category = el.songCategorySelect.value;
+        var pool = DISTRACTOR_BANK.concat(state.songs.map(function (s) {
+          return { title: s.title, category: s.category };
+        }));
+        var res = generateDistractors(title, category, pool);
+        for (var i = 0; i < 4; i++) {
+          document.getElementById('opt-input-' + i).value = res.options[i];
+        }
+        document.getElementById('opt-radio-' + res.correctIndex).checked = true;
+        showToast('Đã tạo và trộn ngẫu nhiên 4 đáp án!');
+      }
+
+      function handleSongSubmit() {
+        var title = el.songTitleInput.value.trim();
+        var rawUrl = el.songUrlInput.value.trim();
+        var startSec = Math.max(0, parseInt(el.songStartInput.value, 10) || 0);
+        var category = el.songCategorySelect.value;
+
+        if (!title) {
+          el.songFormError.textContent = 'Vui lòng nhập Tên bài hát đúng.';
+          el.songTitleInput.focus();
+          return;
+        }
+
+        var parsed = parseMediaUrl(rawUrl);
+        if (!parsed.valid) {
+          el.songFormError.textContent = 'Link YouTube hoặc Link MP3 không hợp lệ. Hãy kiểm tra lại!';
+          el.songUrlInput.focus();
+          return;
+        }
+
+        var opts = [];
+        for (var i = 0; i < 4; i++) {
+          opts.push(document.getElementById('opt-input-' + i).value.trim());
+        }
+        var correctIdx = getFormCorrectIndex();
+
+        // If any option is blank, auto-generate distractors seamlessly around title
+        if (opts.some(function (o) { return !o; })) {
+          var pool = DISTRACTOR_BANK.concat(state.songs.map(function (s) {
+            return { title: s.title, category: s.category };
+          }));
+          var generated = generateDistractors(title, category, pool);
+          opts = generated.options;
+          correctIdx = generated.correctIndex;
+          for (var j = 0; j < 4; j++) {
+            document.getElementById('opt-input-' + j).value = opts[j];
+          }
+          document.getElementById('opt-radio-' + correctIdx).checked = true;
+        }
+
+        el.songFormError.textContent = '';
+        var editingId = el.editingSongId.value;
+
+        var songRecord = {
+          id: editingId || ('custom_' + Date.now()),
+          title: title,
+          mediaType: parsed.mediaType,
+          mediaUrl: parsed.cleanUrl,
+          videoId: parsed.videoId,
+          startSeconds: startSec,
+          category: category,
+          options: opts,
+          correctIndex: correctIdx
+        };
+
+        if (editingId) {
+          var foundIdx = state.songs.findIndex(function (s) { return s.id === editingId; });
+          if (foundIdx >= 0) {
+            state.songs[foundIdx] = songRecord;
+          } else {
+            state.songs.push(songRecord);
+          }
+          showToast('Đã cập nhật bài hát "' + title + '"');
+        } else {
+          state.songs.push(songRecord);
+          showToast('Đã thêm "' + title + '" vào danh sách!');
+        }
+
+        saveSongs(state.songs);
+        renderSettingsSongList();
+        renderHeader();
+        if (editingId && state.songs[state.currentIndex] && state.songs[state.currentIndex].id === editingId) {
+          renderAnswers();
+        }
+        resetSongForm();
+      }
+
+      // =========================================================================
+      // 10. EVENT BINDINGS
+      // =========================================================================
+      el.pinCopyBtn.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(state.room.pin).catch(function () {});
+        }
+        showToast('Đã sao chép thông tin lớp: ' + state.room.pin);
+      });
+
+      el.pauseBtn.addEventListener('click', function () {
+        togglePause();
+        el.pauseBtn.blur();
+      });
+
+      el.nextBtn.addEventListener('click', function () {
+        goNextQuestion();
+        el.nextBtn.blur();
+      });
+
+      el.settingsBtn.addEventListener('click', openSettingsModal);
+      el.hostBadgeBtn.addEventListener('click', openSettingsModal);
+      el.closeSettingsBtn.addEventListener('click', closeSettingsModal);
+
+      el.settingsModal.addEventListener('click', function (e) {
+        if (e.target === el.settingsModal) closeSettingsModal();
+      });
+
+      el.fullscreenBtn.addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+          if (document.documentElement.requestFullscreen) {
+            var enterFs = document.documentElement.requestFullscreen();
+            if (enterFs && typeof enterFs.catch === 'function') {
+              enterFs.catch(function () {});
+            }
+          }
+        } else if (document.exitFullscreen) {
+          var exitFs = document.exitFullscreen();
+          if (exitFs && typeof exitFs.catch === 'function') {
+            exitFs.catch(function () {});
+          }
+        }
+      });
+
+      el.html5Audio.addEventListener('error', function () {
+        var current = getCurrentSong();
+        if (current && current.mediaType === 'audio') {
+          el.mp3RevealedTitle.textContent = 'Không thể phát file audio này';
+          showToast('Lỗi tải file MP3/Audio. Vui lòng kiểm tra lại đường dẫn!');
+        }
+      });
+
+      el.toggleBlurBtn.addEventListener('click', function () {
+        state.blurEnabled = !state.blurEnabled;
+        updateBlurOverlay();
+      });
+
+      el.muteBtn.addEventListener('click', function () {
+        state.isMuted = !state.isMuted;
+        applyMuteState();
+      });
+
+      el.playMediaBtn.addEventListener('click', function () {
+        resumeOrReplayMedia(true);
+      });
+
+      el.saveRoomCfgBtn.addEventListener('click', function () {
+        state.room.topic = el.cfgTopic.value.trim() || 'Nghe nhạc đoán tên bài hát';
+        state.room.pin = el.cfgPin.value.trim() || 'Lớp 7A · 828 804';
+        state.room.players = Math.max(1, parseInt(el.cfgPlayers.value, 10) || 32);
+        state.room.durationSec = Math.max(10, Math.min(90, parseInt(el.cfgDuration.value, 10) || 25));
+        state.room.sfxEnabled = el.cfgSfx.checked;
+        state.totalMs = state.room.durationSec * 1000;
+        if (state.remainingMs > state.totalMs) state.remainingMs = state.totalMs;
+        saveRoomConfig(state.room);
+        renderHeader();
+        renderTimerBar();
+        showToast('Đã lưu cài đặt lớp học!');
+      });
+
+      el.songUrlInput.addEventListener('input', updateUrlPreviewHint);
+      el.autoDistractorsBtn.addEventListener('click', handleAutoDistractorsClick);
+      el.submitSongBtn.addEventListener('click', handleSongSubmit);
+      el.cancelEditBtn.addEventListener('click', resetSongForm);
+      if (el.songSearchInput) {
+        el.songSearchInput.addEventListener('input', renderSettingsSongList);
+      }
+      if (el.songFilterSelect) {
+        el.songFilterSelect.addEventListener('change', renderSettingsSongList);
+      }
+
+      el.playRandomBtn.addEventListener('click', function () {
+        var count = parseInt(el.randomCountSelect.value, 10) || 15;
+        state.songs = buildRandomQuiz(count, DEFAULT_SONGS);
+        state.totalScore = 0;
+        state.correctCount = 0;
+        saveSongs(state.songs);
+        closeSettingsModal();
+        startQuestion(0, true);
+        showToast('Đã tạo bộ ' + state.songs.length + ' bài hát ngẫu nhiên (Kho 100 bài Lớp 7)!');
+      });
+
+      el.restoreDefaultsBtn.addEventListener('click', function () {
+        state.songs = sanitizeSongs(null);
+        state.totalScore = 0;
+        state.correctCount = 0;
+        if (el.songSearchInput) el.songSearchInput.value = '';
+        if (el.songFilterSelect) el.songFilterSelect.value = 'all';
+        saveSongs(state.songs);
+        renderSettingsSongList();
+        startQuestion(0, false);
+        showToast('Đã khôi phục đủ ' + state.songs.length + ' bài hát cho Lớp 7!');
+      });
+
+      el.closeResultsBtn.addEventListener('click', function () {
+        el.resultsModal.classList.remove('is-open');
+      });
+      el.replayQuizBtn.addEventListener('click', restartCurrentQuiz);
+      el.resultsRandomBtn.addEventListener('click', function () {
+        el.resultsModal.classList.remove('is-open');
+        state.songs = buildRandomQuiz(state.songs.length || 10, DEFAULT_SONGS);
+        state.totalScore = 0;
+        state.correctCount = 0;
+        saveSongs(state.songs);
+        startQuestion(0, true);
+      });
+
+      // Keyboard shortcuts for classroom projector control
+      document.addEventListener('keydown', function (e) {
+        if (el.settingsModal.classList.contains('is-open')) {
+          if (e.key === 'Escape') closeSettingsModal();
+          return;
+        }
+        if (el.resultsModal.classList.contains('is-open')) {
+          if (e.key === 'Escape') el.resultsModal.classList.remove('is-open');
+          return;
+        }
+        var tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+        var key = e.key.toLowerCase();
+        if (key === '1' || key === 'a') handleAnswerSelect(0);
+        else if (key === '2' || key === 'b') handleAnswerSelect(1);
+        else if (key === '3' || key === 'c') handleAnswerSelect(2);
+        else if (key === '4' || key === 'd') handleAnswerSelect(3);
+        else if (key === 'p' || e.key === ' ') {
+          e.preventDefault();
+          togglePause();
+        } else if (e.key === 'ArrowRight' || key === 'n') {
+          goNextQuestion();
+        } else if (key === 'm') {
+          state.isMuted = !state.isMuted;
+          applyMuteState();
+        } else if (key === 'v') {
+          state.blurEnabled = !state.blurEnabled;
+          updateBlurOverlay();
+        }
+      });
+
+      // =========================================================================
+      // 11. BOOTSTRAP APPLICATION
+      // =========================================================================
+      applyMuteState();
+      startQuestion(0, true);
+    })();
+  </script>
+</body>
+</html>
